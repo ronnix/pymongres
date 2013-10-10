@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+from datetime import datetime
+
 from psycopg2.extensions import QuotedString
 
 from pymongres.errors import InvalidName
@@ -121,7 +123,21 @@ class Collection(object):
 
     @staticmethod
     def _build_where_predicate(value):
-        return "= {}".format(quoted(value))
+        if isinstance(value, dict):
+            assert len(value) == 1
+            op, value = value.items()[0]
+            if op == '$lt':
+                return "< {}".format(quoted(value))
+            elif op == '$lte':
+                return "<= {}".format(quoted(value))
+            elif op == '$gt':
+                return "> {}".format(quoted(value))
+            elif op == '$gte':
+                return ">= {}".format(quoted(value))
+            else:
+                raise Exception("Unsupported operator %s" % op)
+        else:
+            return "= {}".format(quoted(value))
 
     @staticmethod
     def _document_from_row(row):
@@ -151,5 +167,7 @@ class Collection(object):
 def quoted(value, encoding='utf8'):
     if isinstance(value, basestring):
         return QuotedString(value).getquoted().decode(encoding)
+    elif isinstance(value, datetime):
+        return quoted(value.isoformat())
     else:
         return value

@@ -25,3 +25,6 @@ class ResultSet(object):
                 count, = cursor.fetchone()
 
         return count
+
+    def sort(self, key):
+        return self  # FIXME

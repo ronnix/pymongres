@@ -213,3 +213,51 @@ class TestCount(unittest.TestCase):
     def test_count_result_set(self):
         count = self.posts.find({"author": "Mike"}).count()
         self.assertEquals(1, count)
+
+
+class TestAdvancedQueries(unittest.TestCase):
+
+    def setUp(self):
+        from pymongres import MongresClient
+        client = MongresClient()
+        self.posts = client.pymongres_test.posts
+        self.posts.insert([
+            {
+                "author": "Mike",
+                "text": "Another post!",
+                "tags": ["bulk", "insert"],
+                "date": datetime(2009, 11, 12, 11, 14)
+            },
+            {
+                "author": "Eliot",
+                "title": "MongoDB is fun",
+                "text": "and pretty easy too!",
+                "date": datetime(2009, 11, 10, 10, 45)
+            },
+        ])
+
+    def tearDown(self):
+        with self.posts.database.connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute('DELETE FROM posts')
+
+    def test_filter_and_sort(self):
+        d = datetime(2009, 11, 12, 12)
+        posts = list(self.posts.find({"date": {"$lt": d}}).sort("author"))
+        self.assertEqual(
+            [
+                {
+                    "author": "Eliot",
+                    "title": "MongoDB is fun",
+                    "text": "and pretty easy too!",
+                    "date": datetime(2009, 11, 10, 10, 45)
+                },
+                {
+                    "author": "Mike",
+                    "text": "Another post!",
+                    "tags": ["bulk", "insert"],
+                    "date": datetime(2009, 11, 12, 11, 14)
+                },
+            ],
+            posts
+        )
