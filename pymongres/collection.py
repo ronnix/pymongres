@@ -102,16 +102,26 @@ class Collection(object):
 
         filters = []
         for key, value in query.items():
-            if key == '_id':
-                clause = "id = {}".format(quoted(value))
-            else:
-                clause = "data->>{} = {}".format(quoted(key), quoted(value))
+            column = Collection._build_where_column(key)
+            predicate = Collection._build_where_predicate(value)
+            clause = "{} {}".format(column, predicate)
             filters.append(clause)
 
         if filters:
             return ' WHERE {}'.format('AND'.join(filters))
         else:
             return ''
+
+    @staticmethod
+    def _build_where_column(key):
+        if key == '_id':
+            return "id"
+        else:
+            return "data->>{}".format(quoted(key))
+
+    @staticmethod
+    def _build_where_predicate(value):
+        return "= {}".format(quoted(value))
 
     @staticmethod
     def _document_from_row(row):
