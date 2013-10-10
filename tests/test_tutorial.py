@@ -32,10 +32,10 @@ class TestDatabase(unittest.TestCase):
         self.client = MongresClient()
 
     def test_database_as_attribute(self):
-        db = self.client.test_database
+        db = self.client.pymongres_test
 
     def test_database_as_key(self):
-        db = self.client['test_database']
+        db = self.client['pymongres_test']
 
 
 class TestCollections(unittest.TestCase):
@@ -43,7 +43,7 @@ class TestCollections(unittest.TestCase):
     def setUp(self):
         from pymongres import MongresClient
         client = MongresClient()
-        self.db = client.test_database
+        self.db = client.pymongres_test
 
     def test_collection_as_attribute(self):
         collection = self.db.test_collection
@@ -61,7 +61,7 @@ class TestInsertDocument(unittest.TestCase):
     def setUp(self):
         from pymongres import MongresClient
         client = MongresClient()
-        self.posts = client.test_database.posts
+        self.posts = client.pymongres_test.posts
 
     def tearDown(self):
         with self.posts.database.connection() as connection:
@@ -83,7 +83,7 @@ class TestFindOne(unittest.TestCase):
     def setUp(self):
         from pymongres import MongresClient
         client = MongresClient()
-        self.posts = client.test_database.posts
+        self.posts = client.pymongres_test.posts
         self.post_id = self.posts.insert({
             "author": "Mike",
             "text": "My first blog post!",
@@ -120,7 +120,7 @@ class TestBulkInsert(unittest.TestCase):
     def setUp(self):
         from pymongres import MongresClient
         client = MongresClient()
-        self.posts = client.test_database.posts
+        self.posts = client.pymongres_test.posts
 
     def tearDown(self):
         with self.posts.database.connection() as connection:
@@ -151,7 +151,7 @@ class TestFind(unittest.TestCase):
     def setUp(self):
         from pymongres import MongresClient
         client = MongresClient()
-        self.posts = client.test_database.posts
+        self.posts = client.pymongres_test.posts
         self.posts.insert([
             {
                 "author": "Mike",
@@ -186,7 +186,7 @@ class TestCount(unittest.TestCase):
     def setUp(self):
         from pymongres import MongresClient
         client = MongresClient()
-        self.posts = client.test_database.posts
+        self.posts = client.pymongres_test.posts
         self.posts.insert([
             {
                 "author": "Mike",
