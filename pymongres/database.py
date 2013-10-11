@@ -17,6 +17,9 @@ class Database(object):
     def collection_names(self):
         return [name for name in self._list_tables() if not name.startswith(('pg_', 'sql_'))]
 
+    def drop_collection(self, name):
+        self._drop_table(name)
+
     def __getattr__(self, name):
         return self._get_collection(name)
 
@@ -47,3 +50,8 @@ class Database(object):
         with self.connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute("CREATE TABLE {} (id serial PRIMARY KEY, data json);".format(name))
+
+    def _drop_table(self, name):
+        with self.connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("DROP TABLE IF EXISTS {};".format(name))

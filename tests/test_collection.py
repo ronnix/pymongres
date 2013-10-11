@@ -23,3 +23,16 @@ class TestCollectionName(unittest.TestCase):
         from pymongres.collection import Collection
         self.assertEqual(self.db.test, self.db["test"])
         self.assertEqual(self.db.test, Collection(self.db, "test"))
+
+    def test_drop_collection(self):
+        from pymongres.collection import Collection
+
+        collection = self.db['test']
+        self.assertIsInstance(collection, Collection)
+        self.assertIn('test', self.db.collection_names())
+
+        self.db.drop_collection('test')
+        self.assertNotIn('test', self.db.collection_names())
+
+        # No exception
+        self.db.drop_collection('test')
