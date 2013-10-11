@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from psycopg2.extensions import QuotedString
 
+from pymongres.errors import InvalidName
 from pymongres.json_adapters import Json
 from pymongres.resultset import ResultSet
 
@@ -23,8 +24,17 @@ class Collection(object):
         self.database = database
         self.name = name
 
+        self._check_name(name)
+
         if not self.database._table_exists(name):
             self.database._create_table(name)
+
+    @staticmethod
+    def _check_name(name):
+        if not isinstance(name, basestring):
+            raise TypeError()
+        if name == "":
+            raise InvalidName("collection names cannot be empty")
 
     def insert(self, document):
         if isinstance(document, list):
