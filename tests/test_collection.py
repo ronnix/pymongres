@@ -18,3 +18,8 @@ class TestCollectionName(unittest.TestCase):
         from pymongres.collection import Collection
         from pymongres.errors import InvalidName
         self.assertRaises(InvalidName, Collection, self.db, "")
+
+    def test_equality(self):
+        from pymongres.collection import Collection
+        self.assertEqual(self.db.test, self.db["test"])
+        self.assertEqual(self.db.test, Collection(self.db, "test"))

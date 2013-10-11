@@ -36,6 +36,14 @@ class Collection(object):
         if name == "":
             raise InvalidName("collection names cannot be empty")
 
+    def __eq__(self, other):
+        if isinstance(other, Collection):
+            return (self.database, self.name) == (other.database, other.name)
+        return NotImplemented
+
+    def __ne__(self, other):
+        return not self == other
+
     def insert(self, document):
         if isinstance(document, list):
             return self._insert_multi(document)
