@@ -69,7 +69,7 @@ class Collection(object):
                 _id, = cursor.fetchone()
                 return _id
 
-    def find_one(self, spec=None):
+    def find_one(self, spec=None, fields=None):
         sql_query = self._find_query(spec)
 
         with self.database.connection() as connection:
@@ -79,7 +79,7 @@ class Collection(object):
                 if row is None:
                     return None
                 else:
-                    return self._document_from_row(row)
+                    return self._document_from_row(row, fields=fields)
 
     def _find_query(self, spec, order_by=None):
         sql_query = 'SELECT * FROM {collection}{where}{sort}'.format(
@@ -148,14 +148,61 @@ class Collection(object):
         return ' ORDER BY {}'.format(column)
 
     @staticmethod
-    def _document_from_row(row):
+    def _document_from_row(row, fields=None):
         _id, data = row
-        assert '_id' not in data
+        return Collection._filter_document(_id, data, fields)
+
+    @staticmethod
+    def _filter_document(_id, data, fields=None):
+        if fields is None:
+            data['_id'] = _id
+            return data
+        elif isinstance(fields, dict):
+            return Collection._filter_document_by_dict(_id, data, fields)
+        else:
+            return Collection._filter_document_by_list(_id, data, fields)
+
+    @staticmethod
+    def _filter_document_by_list(_id, data, fields=None):
+        """
+        Exclusive list of fields to include
+
+        Note: _id is always included in this case
+        """
+        res = {}
+        for field in fields:
+            if field == '_id':
+                continue
+            path = field.split('.')
+            source, target = data, res
+            if len(path) > 1:
+                for item in path[:-1]:
+                    source = source[item]
+                    target = target.setdefault(item, {})
+            name = path[-1]
+            target[name] = source[name]
+        res['_id'] = _id
+        return res
+
+    @staticmethod
+    def _filter_document_by_dict(_id, data, fields=None):
+        """
+        Exclusive list of fields to include
+        """
         data['_id'] = _id
+        for field, include in fields.iteritems():
+            if not include:
+                path = field.split('.')
+                target = data
+                if len(path) > 1:
+                    for item in path[:-1]:
+                        target = target[item]
+                name = path[-1]
+                del target[name]
         return data
 
-    def find(self, spec=None):
-        return ResultSet(self, spec)
+    def find(self, spec=None, fields=None):
+        return ResultSet(self, spec, fields)
 
     def count(self):
         """

@@ -3,9 +3,10 @@ from __future__ import absolute_import
 
 class ResultSet(object):
 
-    def __init__(self, collection, spec, order_by=None):
+    def __init__(self, collection, spec, fields, order_by=None):
         self.collection = collection
         self.spec = spec
+        self.fields = fields
         self.order_by = order_by
 
     def __iter__(self):
@@ -15,7 +16,10 @@ class ResultSet(object):
             with connection.cursor() as cursor:
                 cursor.execute(sql_query)
                 for row in iter(cursor.fetchone, None):
-                    yield self.collection._document_from_row(row)
+                    yield self.collection._document_from_row(row, fields=self.fields)
+
+    def next(self):
+        return self.__iter__().next()
 
     def count(self):
         sql_query = self.collection._count_query(self.spec)
@@ -31,5 +35,6 @@ class ResultSet(object):
         return ResultSet(
             collection=self.collection,
             spec=self.spec,
+            fields=self.fields,
             order_by=key,
         )
