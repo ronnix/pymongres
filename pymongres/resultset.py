@@ -3,12 +3,13 @@ from __future__ import absolute_import
 
 class ResultSet(object):
 
-    def __init__(self, collection, query):
+    def __init__(self, collection, query, order_by=None):
         self.collection = collection
         self.query = query
+        self.order_by = order_by
 
     def __iter__(self):
-        sql_query = self.collection._find_query(self.query)
+        sql_query = self.collection._find_query(self.query, self.order_by)
 
         with self.collection.database.connection() as connection:
             with connection.cursor() as cursor:
@@ -27,4 +28,8 @@ class ResultSet(object):
         return count
 
     def sort(self, key):
-        return self  # FIXME
+        return ResultSet(
+            collection=self.collection,
+            query=self.query,
+            order_by=key,
+        )

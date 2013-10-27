@@ -81,10 +81,11 @@ class Collection(object):
                 else:
                     return self._document_from_row(row)
 
-    def _find_query(self, query):
-        sql_query = 'SELECT * FROM {collection}{where}'.format(
+    def _find_query(self, query, order_by=None):
+        sql_query = 'SELECT * FROM {collection}{where}{sort}'.format(
             collection=self.name,
             where=self._build_where_clause(query),
+            sort=self._build_order_by_clause(order_by),
         )
         log.debug(sql_query)
         return sql_query
@@ -104,7 +105,7 @@ class Collection(object):
 
         filters = []
         for key, value in query.items():
-            column = Collection._build_where_column(key)
+            column = Collection._build_column(key)
             predicate = Collection._build_where_predicate(value)
             clause = "{} {}".format(column, predicate)
             filters.append(clause)
@@ -115,7 +116,7 @@ class Collection(object):
             return ''
 
     @staticmethod
-    def _build_where_column(key):
+    def _build_column(key):
         if key == '_id':
             return "id"
         else:
@@ -138,6 +139,13 @@ class Collection(object):
                 raise Exception("Unsupported operator %s" % op)
         else:
             return "= {}".format(quoted(value))
+
+    @staticmethod
+    def _build_order_by_clause(key):
+        if key is None:
+            return ''
+        column = Collection._build_column(key)
+        return ' ORDER BY {}'.format(column)
 
     @staticmethod
     def _document_from_row(row):

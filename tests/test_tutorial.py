@@ -244,20 +244,6 @@ class TestAdvancedQueries(unittest.TestCase):
     def test_filter_and_sort(self):
         d = datetime(2009, 11, 12, 12)
         posts = list(self.posts.find({"date": {"$lt": d}}).sort("author"))
-        self.assertEqual(
-            [
-                {
-                    "author": "Eliot",
-                    "title": "MongoDB is fun",
-                    "text": "and pretty easy too!",
-                    "date": datetime(2009, 11, 10, 10, 45)
-                },
-                {
-                    "author": "Mike",
-                    "text": "Another post!",
-                    "tags": ["bulk", "insert"],
-                    "date": datetime(2009, 11, 12, 11, 14)
-                },
-            ],
-            posts
-        )
+        self.assertEqual(len(posts), 2)
+        self.assertEqual(posts[0]['author'], u"Eliot")
+        self.assertEqual(posts[1]['author'], u"Mike")
