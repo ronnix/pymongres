@@ -69,8 +69,8 @@ class Collection(object):
                 _id, = cursor.fetchone()
                 return _id
 
-    def find_one(self, query=None):
-        sql_query = self._find_query(query)
+    def find_one(self, spec=None):
+        sql_query = self._find_query(spec)
 
         with self.database.connection() as connection:
             with connection.cursor() as cursor:
@@ -81,30 +81,30 @@ class Collection(object):
                 else:
                     return self._document_from_row(row)
 
-    def _find_query(self, query, order_by=None):
+    def _find_query(self, spec, order_by=None):
         sql_query = 'SELECT * FROM {collection}{where}{sort}'.format(
             collection=self.name,
-            where=self._build_where_clause(query),
+            where=self._build_where_clause(spec),
             sort=self._build_order_by_clause(order_by),
         )
         log.debug(sql_query)
         return sql_query
 
-    def _count_query(self, query):
+    def _count_query(self, spec):
         sql_query = 'SELECT COUNT(*) FROM {collection}{where}'.format(
             collection=self.name,
-            where=self._build_where_clause(query),
+            where=self._build_where_clause(spec),
         )
         log.debug(sql_query)
         return sql_query
 
     @staticmethod
-    def _build_where_clause(query):
-        if query is None:
-            query = {}
+    def _build_where_clause(spec):
+        if spec is None:
+            spec = {}
 
         filters = []
-        for key, value in query.items():
+        for key, value in spec.items():
             column = Collection._build_column(key)
             predicate = Collection._build_where_predicate(value)
             clause = "{} {}".format(column, predicate)
@@ -154,8 +154,8 @@ class Collection(object):
         data['_id'] = _id
         return data
 
-    def find(self, query=None):
-        return ResultSet(self, query)
+    def find(self, spec=None):
+        return ResultSet(self, spec)
 
     def count(self):
         """
