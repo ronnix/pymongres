@@ -18,8 +18,9 @@ class ResultSet(object):
                 for row in iter(cursor.fetchone, None):
                     yield self.collection._document_from_row(row, fields=self.fields)
 
-    def next(self):
-        return self.__iter__().next()
+    def __next__(self):
+        return next(self.__iter__())
+    next = __next__
 
     def count(self):
         sql_query = self.collection._count_query(self.spec)

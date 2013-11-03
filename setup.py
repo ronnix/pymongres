@@ -18,6 +18,7 @@ setup(
     license='BSD',
     install_requires=[
         "psycopg2",
+        "six",
     ],
     setup_requires=[],
     tests_require=[],

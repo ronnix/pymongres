@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 from datetime import datetime
 
+from six import iteritems
+
 from psycopg2.extensions import QuotedString
 
 from pymongres.errors import InvalidName
@@ -126,7 +128,7 @@ class Collection(object):
     def _build_where_predicate(value):
         if isinstance(value, dict):
             assert len(value) == 1
-            op, value = value.items()[0]
+            op, value = next(iteritems(value))
             if op == '$lt':
                 return "< {}".format(quoted(value))
             elif op == '$lte':
@@ -190,7 +192,7 @@ class Collection(object):
         Exclusive list of fields to include
         """
         data['_id'] = _id
-        for field, include in fields.iteritems():
+        for field, include in iteritems(fields):
             if not include:
                 path = field.split('.')
                 target = data

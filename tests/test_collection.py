@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+from six import iterkeys
+from six.moves import xrange
+
 import unittest
 
 
@@ -45,48 +48,54 @@ class TestCollectionName(unittest.TestCase):
         db.test.insert(doc)
 
         # Test field inclusion
-        doc = db.test.find({}, ["_id"]).next()
-        self.assertEqual(doc.keys(), ["_id"])
-        doc = db.test.find({}, ["a"]).next()
-        l = doc.keys()
-        l.sort()
+
+        doc = next(db.test.find({}, ["_id"]))
+        self.assertEqual(list(iterkeys(doc)), ["_id"])
+
+        doc = next(db.test.find({}, ["a"]))
+        l = sorted(list(iterkeys(doc)))
         self.assertEqual(l, ["_id", "a"])
-        doc = db.test.find({}, ["b"]).next()
-        l = doc.keys()
-        l.sort()
+
+        doc = next(db.test.find({}, ["b"]))
+        l = sorted(list(iterkeys(doc)))
         self.assertEqual(l, ["_id", "b"])
-        doc = db.test.find({}, ["c"]).next()
-        l = doc.keys()
-        l.sort()
+
+        doc = next(db.test.find({}, ["c"]))
+        l = sorted(list(iterkeys(doc)))
         self.assertEqual(l, ["_id", "c"])
-        doc = db.test.find({}, ["a"]).next()
+
+        doc = next(db.test.find({}, ["a"]))
         self.assertEqual(doc["a"], 1)
-        doc = db.test.find({}, ["b"]).next()
+
+        doc = next(db.test.find({}, ["b"]))
         self.assertEqual(doc["b"], 5)
-        doc = db.test.find({}, ["c"]).next()
+
+        doc = next(db.test.find({}, ["c"]))
         self.assertEqual(doc["c"], {"d": 5, "e": 10})
 
         # Test inclusion of fields with dots
-        doc = db.test.find({}, ["c.d"]).next()
+
+        doc = next(db.test.find({}, ["c.d"]))
         self.assertEqual(doc["c"], {"d": 5})
-        doc = db.test.find({}, ["c.e"]).next()
-        self.assertEqual(doc["c"], {"e": 10})
-        doc = db.test.find({}, ["b", "c.e"]).next()
+
+        doc = next(db.test.find({}, ["c.e"]))
         self.assertEqual(doc["c"], {"e": 10})
 
-        doc = db.test.find({}, ["b", "c.e"]).next()
-        l = doc.keys()
-        l.sort()
+        doc = next(db.test.find({}, ["b", "c.e"]))
+        self.assertEqual(doc["c"], {"e": 10})
+
+        doc = next(db.test.find({}, ["b", "c.e"]))
+        l = sorted(list(iterkeys(doc)))
         self.assertEqual(l, ["_id", "b", "c"])
-        doc = db.test.find({}, ["b", "c.e"]).next()
+
+        doc = next(db.test.find({}, ["b", "c.e"]))
         self.assertEqual(doc["b"], 5)
 
         # Test field exclusion
-        doc = db.test.find({}, {"a": False, "b": 0}).next()
-        l = doc.keys()
-        l.sort()
+
+        doc = next(db.test.find({}, {"a": False, "b": 0}))
+        l = sorted(list(iterkeys(doc)))
         self.assertEqual(l, ["_id", "c"])
 
-        doc = db.test.find({}, {"_id": False}).next()
-        l = doc.keys()
-        self.assertFalse("_id" in l)
+        doc = next(db.test.find({}, {"_id": False}))
+        self.assertNotIn("_id", iterkeys(doc))
