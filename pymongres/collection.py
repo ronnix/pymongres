@@ -48,11 +48,12 @@ class Collection(object):
     def __ne__(self, other):
         return not self == other
 
-    def insert(self, document):
-        if isinstance(document, list):
-            return self._insert_multi(document)
+    def insert(self, doc_or_docs, manipulate=False):
+        assert manipulate == False  # SON manipulators are not supported
+        if isinstance(doc_or_docs, dict):
+            return self._insert_single(doc_or_docs)
         else:
-            return self._insert_single(document)
+            return self._insert_multi(doc_or_docs)
 
     def _insert_multi(self, documents):
         res = []

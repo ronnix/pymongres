@@ -99,3 +99,11 @@ class TestCollectionName(unittest.TestCase):
 
         doc = next(db.test.find({}, {"_id": False}))
         self.assertNotIn("_id", iterkeys(doc))
+
+    def test_generator_insert(self):
+        db = self.db
+        db.test.remove({})
+        self.assertEqual(db.test.find().count(), 0)
+        db.test.insert(({'a': i} for i in xrange(5)), manipulate=False)
+        self.assertEqual(5, db.test.count())
+        db.test.remove({})
