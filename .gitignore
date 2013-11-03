@@ -1,4 +1,7 @@
+.ipynb_checkpoints
 .tox
 *.egg-info
 *.log
 *.pyc
+*.sublime-project
+*.sublime-workspace
