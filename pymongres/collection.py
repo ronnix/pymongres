@@ -220,6 +220,20 @@ class Collection(object):
 
         return count
 
+    def remove(self, spec):
+        """
+        Remove documents from the collection
+        """
+        sql_query = 'DELETE FROM {collection}{where}'.format(
+            collection=self.name,
+            where=self._build_where_clause(spec),
+        )
+        log.debug(sql_query)
+
+        with self.database.connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(sql_query)
+
 
 def quoted(value, encoding='utf8'):
     if isinstance(value, basestring):
