@@ -15,7 +15,7 @@ setup(
     author='Ronan Amicel',
     author_email='ronan.amicel@gmail.com',
     url='https://github.com/ronnix/pymongres',
-    license='BSD',
+    license="Apache License, Version 2.0",
     install_requires=[
         "psycopg2",
         "six",
